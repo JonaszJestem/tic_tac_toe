@@ -17,8 +17,15 @@ public:
             "₇", "₈", "₉",
     };
 
-    void placePlayer(int field, Player player) {
+    bool placePlayer(int field, Player player) {
+        // If place is already taken by some player return failure
+        if (fields[field] == string(1, (char) Player_O) || fields[field] == string(1, (char) Player_X)) {
+            return false;
+        }
+
         fields[field] = player;
+        // Return move successful
+        return true;
     }
 
     void displayBoard() {
@@ -43,7 +50,6 @@ public:
 int main() {
     auto *gameBoard = new GameBoard();
     Player currentPlayer = Player_O;
-    gameBoard->displayBoard();
 
     while (true) {
         // If winner is found finish the game
@@ -51,13 +57,23 @@ int main() {
             break;
         }
 
+        // Start of move
+        move:
+
+        gameBoard->displayBoard();
         // Read the field from the keyboard input
         int field;
         cout << "Podaj pole na które ma ruszyc się gracz " << currentPlayer << ": " << endl;
         cin >> field;
 
         // Place player marker on proper field
-        gameBoard->placePlayer(field - 1, currentPlayer);
+        bool success = gameBoard->placePlayer(field - 1, currentPlayer);
+
+        if(!success) {
+            cout << "Miejsce jest juz zajęte!" << endl;
+            // If place is already taken allow to make move again
+            goto move;
+        }
 
         // Change to next player
         if (currentPlayer == Player_O) {
@@ -65,8 +81,6 @@ int main() {
         } else if (currentPlayer == Player_X) {
             currentPlayer = Player_O;
         }
-
-        gameBoard->displayBoard();
     }
 
     cout << "Wygral gracz: " << gameBoard->getWinner() << endl;
